@@ -9,6 +9,7 @@ public class Constants {
 		public static String STARTFOREGROUND_ACTION = "c4r0n0s.action.startforeground";
 		public static String STOPFOREGROUND_ACTION = "c4r0n0s.action.stopforeground";
 		public static String UPDATE_MAIN_NOTIFICATION = "c4r0n0s.action.update_main_notification";
+		public static String NO_INTERNET = "c4r0n0s.action.NO_INTERNET";
 
 		public static final String CHANNEL_ID_MAIN = "xGameChanelMain";
 		public static final String CHANNEL_ID_NOTIFICATION = "xGameChanelNotification";

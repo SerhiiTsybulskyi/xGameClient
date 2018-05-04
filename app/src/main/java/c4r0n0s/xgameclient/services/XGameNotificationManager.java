@@ -46,7 +46,7 @@ public class XGameNotificationManager {
     }
 
     private void createMainChannel() {
-        Uri defaultNotificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        Uri defaultNotificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID_MAIN, CHANNEL_NAME_MAIN,
                     android.app.NotificationManager.IMPORTANCE_DEFAULT);

@@ -4,11 +4,11 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.Objects;
@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import c4r0n0s.xgameclient.Constants;
 import c4r0n0s.xgameclient.MainActivity;
 import c4r0n0s.xgameclient.R;
+import c4r0n0s.xgameclient.utils.DetectConnection;
 
 import static c4r0n0s.xgameclient.Constants.ACTION.CHANNEL_ID_MAIN;
 
@@ -25,10 +26,13 @@ public class TaskManagerService extends Service {
     private static final String LOG_TAG = TaskManagerService.class.getName();
     private WebViewService webViewService;
     private Timer refreshTimer = new Timer();
+        private Long refreshPeriod = 30000L;
+//    private Long refreshPeriod = 5000L;
     private Notification.Builder nBuilder;
     private XGameNotificationManager xGameNotificationManager;
 
-    public TaskManagerService() {}
+    public TaskManagerService() {
+    }
 
     @Override
     public void onCreate() {
@@ -66,13 +70,13 @@ public class TaskManagerService extends Service {
                         pStopIntent).build();
 
                 nBuilder = new Notification.Builder(this, CHANNEL_ID_MAIN)
-                        .setContentTitle("xGame client")
-                        .setTicker("Truiton Music Player")
-                        .setContentText("xGame client is running")
+                        .setStyle(new Notification.BigTextStyle().bigText("xGame client is running..."))
+                        .setColor(Color.GREEN)
+                        .setTicker("I don't know what is it")
                         .setContentIntent(pendingIntent)
                         .setOnlyAlertOnce(true)
                         .setOngoing(true)
-                        .setSmallIcon(R.drawable.ic_sync_black_24dp)
+                        .setSmallIcon(R.drawable.ic_sync_24dp)
                         .addAction(stopAction);
 
                 startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, nBuilder.build());
@@ -84,8 +88,21 @@ public class TaskManagerService extends Service {
         } else if (Objects.equals(intent.getAction(), Constants.ACTION.UPDATE_MAIN_NOTIFICATION)) {
             if (!Objects.isNull(nBuilder)) {
                 Notification newNotification = nBuilder
-                        .setContentText("xGame client is running... Last update: "
-                                + intent.getStringExtra("dateTime"))
+                        .setSubText(intent.getStringExtra("dateTime"))
+                        .setSmallIcon(R.drawable.ic_sync_24dp)
+                        .setColor(Color.GREEN)
+                        .setOnlyAlertOnce(true)
+                        .build();
+                this.xGameNotificationManager.getManager()
+                        .notify(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, newNotification);
+            }
+        } else if (Objects.equals(intent.getAction(), Constants.ACTION.NO_INTERNET)) {
+            if (!Objects.isNull(nBuilder)) {
+                Notification newNotification = nBuilder
+                        .setStyle(new Notification.BigTextStyle().bigText("No internet connection!!!"))
+                        .setSmallIcon(R.drawable.ic_sync_problem_24dp)
+                        .setColor(Color.RED)
+                        .setOnlyAlertOnce(false)
                         .build();
                 this.xGameNotificationManager.getManager()
                         .notify(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, newNotification);
@@ -104,17 +121,24 @@ public class TaskManagerService extends Service {
 
     public void reload(final WebViewService webViewService) {
         final Handler handler = new Handler();
+        final TaskManagerService self = this;
         refreshTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        webViewService.getWebView().loadUrl("https://xgame-online.com/uni21/overview.php");
+                        if (!DetectConnection.isInternetConnectionAvailable(self)) {
+                            Intent noConnectionIntent = new Intent(self, TaskManagerService.class);
+                            noConnectionIntent.setAction(Constants.ACTION.NO_INTERNET);
+                            Objects.requireNonNull(self).startService(noConnectionIntent);
+                        } else {
+                            webViewService.getWebView().loadUrl("https://xgame-online.com/uni21/overview.php");
+                        }
                     }
                 });
             }
-        }, 0, 300000);
+        }, 0, refreshPeriod);
     }
 }
 

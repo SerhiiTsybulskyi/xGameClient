@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 import android.webkit.ValueCallback;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -21,10 +22,12 @@ import c4r0n0s.xgameclient.Constants;
 public class WebViewService {
     private WebView webView;
     private Context context;
+    private Intent taskManagerServiceIntent;
 
     @SuppressLint("SetJavaScriptEnabled")
     private WebViewService(final Context context) {
         this.context = context;
+        taskManagerServiceIntent = new Intent(context, TaskManagerService.class);
         final XGameNotificationManager xGameNotificationManager = new XGameNotificationManager(context);
         this.webView = new WebView(context);
         this.webView.getSettings().setJavaScriptEnabled(true);
@@ -46,9 +49,8 @@ public class WebViewService {
                             }
 
 
-                            Intent taskManagerServiceIntent = new Intent(context, TaskManagerService.class);
                             taskManagerServiceIntent.setAction(Constants.ACTION.UPDATE_MAIN_NOTIFICATION);
-                            String currentDateTime = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date());
+                            String currentDateTime = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date());
                             taskManagerServiceIntent.putExtra("dateTime", currentDateTime);
                             Objects.requireNonNull(context).startService(taskManagerServiceIntent);
                         }

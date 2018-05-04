@@ -1,8 +1,6 @@
 package c4r0n0s.xgameclient.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,14 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
 import java.util.Objects;
-
 import c4r0n0s.xgameclient.Constants;
-import c4r0n0s.xgameclient.MainActivity;
 import c4r0n0s.xgameclient.R;
 import c4r0n0s.xgameclient.services.TaskManagerService;
-import c4r0n0s.xgameclient.services.WebViewService;
 import c4r0n0s.xgameclient.utils.ServiceTools;
 
 /**
@@ -34,9 +28,7 @@ import c4r0n0s.xgameclient.utils.ServiceTools;
 public class StatusFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
-    public StatusFragment() {
-        // Required empty public constructor
-    }
+    public StatusFragment() {}
 
     /**
      * Use this factory method to create a new instance of
@@ -54,11 +46,14 @@ public class StatusFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_status, container, false);
         final TextView statusTextView = view.findViewById(R.id.statusTextView);
+        boolean isServiceRunning = ServiceTools.isServiceRunning(Objects.requireNonNull(getContext()), TaskManagerService.class);
+        statusTextView.setText("Service is running: " + isServiceRunning);
 
         Button startButton = view.findViewById(R.id.startServiceButton);
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -109,7 +104,6 @@ public class StatusFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
