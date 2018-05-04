@@ -1,13 +1,14 @@
 package c4r0n0s.xgameclient;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -22,13 +23,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import c4r0n0s.xgameclient.entities.AccountEntity;
 import c4r0n0s.xgameclient.fragments.AccountFragment;
 import c4r0n0s.xgameclient.fragments.StatusFragment;
 import c4r0n0s.xgameclient.fragments.WebViewFragment;
+import c4r0n0s.xgameclient.services.AccountManagerService;
 import c4r0n0s.xgameclient.utils.DetectConnection;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private DatabaseReference mDatabase;
+    private static String androidId;
     private IntentFilter mIntentFilter = new IntentFilter();
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -45,19 +54,22 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(mReceiver, mIntentFilter);
     }
 
+    @SuppressLint("HardwareIds")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
         this.checkInternetConnection();
-
+        androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         loadDefaultPageFragment();
 
+        AccountManagerService.loadAccount(this);
+
         mIntentFilter.addAction("c4r0n0s.MY_ACTION");
         registerReceiver(mReceiver, mIntentFilter);
-
 
         // TODO make send request btn
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -133,7 +145,7 @@ public class MainActivity extends AppCompatActivity
     private void checkInternetConnection() {
         if (!DetectConnection.isInternetConnectionAvailable(this)) {
             String text = "No Internet connection, Please fix it";
-            Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, text, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -142,5 +154,9 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.mainContainer, WebViewFragment.newInstance())
                 .commit();
+    }
+
+    public static String getAndroidId() {
+        return androidId;
     }
 }

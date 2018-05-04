@@ -1,3 +1,3 @@
-document.getElementById('username').value = 'c4r0n0s';
-document.getElementById('password').value = '19930808Cc';
+document.getElementById('username').value = '%s';
+document.getElementById('password').value = '%s';
 document.getElementById('view').click();

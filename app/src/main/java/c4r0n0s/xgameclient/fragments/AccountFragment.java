@@ -1,24 +1,27 @@
 package c4r0n0s.xgameclient.fragments;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import c4r0n0s.xgameclient.MainActivity;
 import c4r0n0s.xgameclient.R;
-
-import static android.content.Context.MODE_PRIVATE;
+import c4r0n0s.xgameclient.entities.AccountEntity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,8 +32,9 @@ import static android.content.Context.MODE_PRIVATE;
  * create an instance of this fragment.
  */
 public class AccountFragment extends Fragment {
+    private static String TAG = AccountFragment.class.getName();
     private OnFragmentInteractionListener mListener;
-    SharedPreferences sPref;
+    private DatabaseReference mDatabase;
 
     public AccountFragment() {
         // Required empty public constructor
@@ -49,6 +53,7 @@ public class AccountFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        mDatabase = FirebaseDatabase.getInstance().getReference("accounts");
         super.onCreate(savedInstanceState);
     }
 
@@ -56,7 +61,6 @@ public class AccountFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         final View inflate = inflater.inflate(R.layout.fragment_account, container, false);
         this.displayCurrentAccountInfo(inflate);
         inflate.findViewById(R.id.buttonSave).setOnClickListener(new View.OnClickListener() {
@@ -100,29 +104,37 @@ public class AccountFragment extends Fragment {
     private void saveAccountInfo(View view) {
         EditText loginText = view.findViewById(R.id.loginText);
         EditText passwordText = view.findViewById(R.id.passwordText);
+        CheckBox autoLogin = view.findViewById(R.id.checkBoxAutoLogin);
+        EditText refreshTime = view.findViewById(R.id.refreshTimeText);
 
-        sPref = Objects.requireNonNull(this.getActivity()).getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor sEditor = sPref.edit();
-        sEditor.putString("login", loginText.getText().toString());
-        sEditor.putString("password", passwordText.getText().toString());
+        String androidId = MainActivity.getAndroidId();
+        AccountEntity accountEntity = new AccountEntity(
+                androidId,
+                loginText.getText().toString(),
+                passwordText.getText().toString(),
+                Integer.parseInt(refreshTime.getText().toString()) * 60000, // Convert min to ms
+                autoLogin.isChecked()
+        );
+        mDatabase.child(androidId).setValue(accountEntity);
 
-        sEditor.commit();
-        Toast.makeText(this.getContext(), "Data saved", Toast.LENGTH_SHORT).show();
-        this.displayCurrentAccountInfo(view);
+        Toast.makeText(this.getContext(), "Data was saved", Toast.LENGTH_SHORT).show();
     }
 
-    private Map<String, String> loadCurrentAccountData() {
-        sPref = Objects.requireNonNull(this.getActivity()).getPreferences(MODE_PRIVATE);
-        Map<String, String> accountInfo = new HashMap<>();
-        accountInfo.put("login", sPref.getString("login", ""));
-        accountInfo.put("password", sPref.getString("password", ""));
+    private void displayCurrentAccountInfo(final View view) {
+        mDatabase.child(MainActivity.getAndroidId()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                AccountEntity account = dataSnapshot.getValue(AccountEntity.class);
+                if (account != null) {
+                    TextView accountTextInfoUI = view.findViewById(R.id.accountInfoText);
+                    accountTextInfoUI.setText(account.toString());
+                }
+            }
 
-        return accountInfo;
-    }
-
-    private void displayCurrentAccountInfo(View view) {
-        Map<String, String> accountInfo = this.loadCurrentAccountData();
-        TextView accountTextInfoUI = view.findViewById(R.id.accountInfoText);
-        accountTextInfoUI.setText(accountInfo.toString());
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "Failed to read value.", databaseError.toException());
+            }
+        });
     }
 }

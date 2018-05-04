@@ -7,19 +7,27 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 import android.webkit.ValueCallback;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Objects;
 
 import c4r0n0s.xgameclient.Constants;
+import c4r0n0s.xgameclient.entities.AccountEntity;
 
 public class WebViewService {
+    private static final String LOG_TAG = WebViewService.class.getName();
     private WebView webView;
     private Context context;
     private Intent taskManagerServiceIntent;
@@ -34,7 +42,10 @@ public class WebViewService {
         this.webView.setWebViewClient(new WebViewClient() {
             public void onPageFinished(final WebView view, final String url) {
                 if (url.equals("https://xgame-online.com/")) {
-                    view.evaluateJavascript(loadScripts("login"), null);
+                    String loginScript = loadScripts("login");
+                    AccountEntity accountSettings = AccountManagerService.getAccountSettings();
+                    loginScript = String.format(loginScript, accountSettings.login, accountSettings.password);
+                    view.evaluateJavascript(loginScript, null);
                 } else if (url.equals("https://xgame-online.com/uni21/overview.php")) {
                     Log.i("overview", "PAGE LOADED");
                     view.evaluateJavascript(loadScripts("check_attack"), new ValueCallback<String>() {

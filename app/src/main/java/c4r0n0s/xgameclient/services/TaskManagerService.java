@@ -11,6 +11,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,6 +24,7 @@ import java.util.TimerTask;
 import c4r0n0s.xgameclient.Constants;
 import c4r0n0s.xgameclient.MainActivity;
 import c4r0n0s.xgameclient.R;
+import c4r0n0s.xgameclient.entities.AccountEntity;
 import c4r0n0s.xgameclient.utils.DetectConnection;
 
 import static c4r0n0s.xgameclient.Constants.ACTION.CHANNEL_ID_MAIN;
@@ -26,8 +33,7 @@ public class TaskManagerService extends Service {
     private static final String LOG_TAG = TaskManagerService.class.getName();
     private WebViewService webViewService;
     private Timer refreshTimer = new Timer();
-        private Long refreshPeriod = 30000L;
-//    private Long refreshPeriod = 5000L;
+    private Long defaultRefreshPeriod = 60000L;
     private Notification.Builder nBuilder;
     private XGameNotificationManager xGameNotificationManager;
 
@@ -122,6 +128,8 @@ public class TaskManagerService extends Service {
     public void reload(final WebViewService webViewService) {
         final Handler handler = new Handler();
         final TaskManagerService self = this;
+        AccountEntity accountSettings = AccountManagerService.getAccountSettings();
+        long refreshPeriod = accountSettings != null ? accountSettings.refreshTime : defaultRefreshPeriod;
         refreshTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
