@@ -59,7 +59,6 @@ public class WebViewService {
                                 xGameNotificationManager.getManager().notify(102, notification.build());
                             }
 
-
                             taskManagerServiceIntent.setAction(Constants.ACTION.UPDATE_MAIN_NOTIFICATION);
                             String currentDateTime = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date());
                             taskManagerServiceIntent.putExtra("dateTime", currentDateTime);
