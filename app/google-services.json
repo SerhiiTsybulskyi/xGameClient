@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "913407534647",
+    "firebase_url": "https://xgame-c4r0n0s.firebaseio.com",
+    "project_id": "xgame-c4r0n0s",
+    "storage_bucket": "xgame-c4r0n0s.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913407534647:android:8f3131e46ce4bd86",
+        "android_client_info": {
+          "package_name": "c4r0n0s.xgameclient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "913407534647-hst8ka76c3c01ngpvsijrqq1i04q8bfb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE9HeBqYkfUNGyoUFZ6YH_oHt70je6uAM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

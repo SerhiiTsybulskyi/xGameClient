@@ -1,5 +1,6 @@
 package c4r0n0s.xgameclient.fragments;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,9 +20,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
+
 import c4r0n0s.xgameclient.MainActivity;
 import c4r0n0s.xgameclient.R;
 import c4r0n0s.xgameclient.entities.AccountEntity;
+import c4r0n0s.xgameclient.services.AccountManagerService;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -70,6 +74,8 @@ public class AccountFragment extends Fragment {
             }
         });
 
+        this.fillFields(inflate, AccountManagerService.getAccountSettings());
+
         return inflate;
     }
 
@@ -106,6 +112,7 @@ public class AccountFragment extends Fragment {
         EditText passwordText = view.findViewById(R.id.passwordText);
         CheckBox autoLogin = view.findViewById(R.id.checkBoxAutoLogin);
         EditText refreshTime = view.findViewById(R.id.refreshTimeText);
+        EditText uniNumber = view.findViewById(R.id.uniNumber);
 
         String androidId = MainActivity.getAndroidId();
         AccountEntity accountEntity = new AccountEntity(
@@ -113,6 +120,7 @@ public class AccountFragment extends Fragment {
                 loginText.getText().toString(),
                 passwordText.getText().toString(),
                 Integer.parseInt(refreshTime.getText().toString()) * 60000, // Convert min to ms
+                Integer.parseInt(uniNumber.getText().toString()),
                 autoLogin.isChecked()
         );
         mDatabase.child(androidId).setValue(accountEntity);
@@ -126,6 +134,7 @@ public class AccountFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 AccountEntity account = dataSnapshot.getValue(AccountEntity.class);
                 if (account != null) {
+                    fillFields(view, account);
                     TextView accountTextInfoUI = view.findViewById(R.id.accountInfoText);
                     accountTextInfoUI.setText(account.toString());
                 }
@@ -136,5 +145,22 @@ public class AccountFragment extends Fragment {
                 Log.w(TAG, "Failed to read value.", databaseError.toException());
             }
         });
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void fillFields(View view, AccountEntity accountSettings) {
+        if (Objects.nonNull(accountSettings)) {
+            EditText loginText = view.findViewById(R.id.loginText);
+            EditText passwordText = view.findViewById(R.id.passwordText);
+            CheckBox autoLogin = view.findViewById(R.id.checkBoxAutoLogin);
+            EditText refreshTime = view.findViewById(R.id.refreshTimeText);
+            EditText uniNumber = view.findViewById(R.id.uniNumber);
+
+            loginText.setText(accountSettings.login);
+            passwordText.setText(accountSettings.password);
+            autoLogin.setChecked(accountSettings.autoLogin);
+            refreshTime.setText(Integer.toString(accountSettings.refreshTime / 60000));
+            uniNumber.setText(Integer.toString(accountSettings.uniNumber));
+        }
     }
 }

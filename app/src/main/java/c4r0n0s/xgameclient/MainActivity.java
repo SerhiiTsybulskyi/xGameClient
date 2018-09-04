@@ -22,10 +22,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import c4r0n0s.xgameclient.entities.AccountEntity;
 import c4r0n0s.xgameclient.fragments.AccountFragment;
@@ -36,7 +42,6 @@ import c4r0n0s.xgameclient.utils.DetectConnection;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private DatabaseReference mDatabase;
     private static String androidId;
     private IntentFilter mIntentFilter = new IntentFilter();
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -64,9 +69,35 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        loadDefaultPageFragment();
 
-        AccountManagerService.loadAccount(this);
+        AccountManagerService.loadAccount();
+        final Timer refreshTimer = new Timer();
+        refreshTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("accounts");
+                mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (!snapshot.hasChild(MainActivity.getAndroidId())) {
+                            refreshTimer.cancel();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.out.println("Failed to read value.");
+                        refreshTimer.cancel();
+                    }
+                });
+
+                AccountEntity accountSettings = AccountManagerService.getAccountSettings();
+                if (Objects.nonNull(accountSettings)) {
+                    loadDefaultPageFragment();
+                    refreshTimer.cancel();
+                }
+            }
+        }, 0, 100);
 
         mIntentFilter.addAction("c4r0n0s.MY_ACTION");
         registerReceiver(mReceiver, mIntentFilter);

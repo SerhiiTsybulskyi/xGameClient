@@ -1,7 +1,6 @@
 package c4r0n0s.xgameclient.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,10 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import java.util.Objects;
-
 import c4r0n0s.xgameclient.R;
+import c4r0n0s.xgameclient.entities.AccountEntity;
+import c4r0n0s.xgameclient.services.AccountManagerService;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,11 +51,12 @@ public class WebViewFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        AccountEntity accountSettings = AccountManagerService.getAccountSettings();
         View view = inflater.inflate(R.layout.fragment_web_view, container, false);
         WebView webView = view.findViewById(R.id.webView);
         webView.setWebViewClient(new WebViewClient());
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.loadUrl("https://xgame-online.com/uni21/overview.php");
+        webView.loadUrl("https://xgame-online.com/uni"+ accountSettings.uniNumber +"/overview.php");
         return view;
     }
 

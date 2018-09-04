@@ -8,25 +8,30 @@ public class AccountEntity {
     public String login;
     public String password;
     public Integer refreshTime;
+    public Integer uniNumber;
     public Boolean autoLogin;
 
     public AccountEntity() {}
 
     public AccountEntity(String deviceId, String login, String password, Integer refreshTime,
-                         Boolean autoLogin) {
+                         Integer uniNumber, Boolean autoLogin) {
         this.deviceId = deviceId;
         this.login = login;
         this.password = password;
         this.refreshTime = refreshTime;
+        this.uniNumber = uniNumber;
         this.autoLogin = autoLogin;
     }
 
     @Override
     public String toString() {
-        return "deviceId=" + deviceId + '\n' +
-                "login=" + login + '\n' +
-                "password=" + password + '\n' +
-                "refreshTime=" + (refreshTime != null ? refreshTime/60000 : "") + " m \n" +
-                "autoLogin=" + autoLogin;
+        return "AccountEntity{" +
+                "deviceId='" + deviceId + '\'' +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", refreshTime=" + refreshTime +
+                ", uniNumber=" + uniNumber +
+                ", autoLogin=" + autoLogin +
+                '}';
     }
 }

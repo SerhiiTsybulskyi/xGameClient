@@ -18,6 +18,7 @@
     <string name="account_info_login">Login</string>
     <string name="account_info_password">Password</string>
     <string name="account_info_refresh_time">Refresh time (m)</string>
+    <string name="account_info_uni_number">Uni #</string>
     <string name="account_info_auto_login">Auto login</string>
     <string name="account_info_save">Save</string>
 

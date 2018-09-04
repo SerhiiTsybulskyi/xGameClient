@@ -14,3 +14,4 @@
     }
     return attacks.join('\n');
 })();
+//document.getElementsByClassName('flight attack')[0].parentElement.previousElementSibling.getElementsByClassName("z")[0].id

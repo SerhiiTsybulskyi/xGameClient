@@ -1,8 +1,5 @@
 package c4r0n0s.xgameclient.services;
-
-import android.content.Context;
 import android.util.Log;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,7 +20,7 @@ public class AccountManagerService {
         return ourInstance;
     }
 
-    public static void loadAccount(Context context) {
+    public static void loadAccount() {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("accounts");
         mDatabase.child(MainActivity.getAndroidId()).addValueEventListener(new ValueEventListener() {
             @Override
